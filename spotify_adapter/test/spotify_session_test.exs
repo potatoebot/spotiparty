@@ -5,11 +5,6 @@ defmodule SpotifyAdapter.SessionTest do
 
   doctest S
 
-  ### TODO:
-  # Don't send in the client token.
-  # Instead have the start up pull the App vars and compute it
-  # Test this, crash if it fails
-
   setup do
     token_request_url = Application.get_env(:spotify_adapter, :token_request_url)
     client_id = Application.get_env(:spotify_adapter, :client_id)
@@ -18,8 +13,7 @@ defmodule SpotifyAdapter.SessionTest do
     startup_params = %{
       code: @test_code,
       http_client: FakeHttp,
-      test_reporting_pid: self(),
-      client_token: @test_client_token
+      test_reporting_pid: self()
     }
 
     session = start_supervised!({S, startup_params})
@@ -47,14 +41,6 @@ defmodule SpotifyAdapter.SessionTest do
       assert {:ok, session} = S.start_link(sp)
       assert %{http_client: HTTPoison} = :sys.get_state(session)
     end
-
-    test "must include a client token", %{startup_params: startup_params} do
-      sp =
-        startup_params
-        |> Map.delete(:client_token)
-
-      assert_raise(FunctionClauseError, ~r(no function clause), fn -> S.start_link(sp) end)
-    end
   end
 
   describe "Perform auth" do
@@ -70,7 +56,7 @@ defmodule SpotifyAdapter.SessionTest do
              code: @test_code,
              redirect_uri: "http://localhost:3000"
            },
-           headers: [{:Authorization, @test_client_token}]
+           headers: [{:Authorization, _}]
          }}
       )
     end

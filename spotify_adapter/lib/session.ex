@@ -12,20 +12,53 @@ defmodule SpotifyAdapter.Session do
   @doc """
   Start the session. We require a code from the initial authorization request (from the browser)
   """
-  def start_link(initial = %{code: _, http_client: _, client_token: _}) do
-    GenServer.start_link(__MODULE__, initial)
+  def start_link(initial = %{code: _, http_client: _}) do
+    check_env
+
+    data =
+      initial
+      |> Map.put(:client_token, compute_client_token())
+
+    GenServer.start_link(__MODULE__, data)
   end
 
-  def start_link(initial = %{code: _, client_token: _}) do
+  def start_link(initial = %{code: _}) do
+    check_env
+
     data =
       initial
       |> Map.put(:http_client, HTTPoison)
+      |> Map.put(:client_token, compute_client_token())
 
     GenServer.start_link(__MODULE__, data)
   end
 
   def request_auth_tokens(session) do
     GenServer.call(session, :request_auth_tokens)
+  end
+
+  defp check_env do
+    if is_nil(Application.get_env(:spotify_adapter, :token_request_url)) do
+      raise("token_request_url not set")
+    end
+
+    if is_nil(Application.get_env(:spotify_adapter, :client_id)) do
+      raise("client_id not set")
+    end
+
+    if is_nil(Application.get_env(:spotify_adapter, :client_secret)) do
+      raise("client_secret not set")
+    end
+
+    :ok
+  end
+
+  defp compute_client_token do
+    Base.encode64(
+      "#{Application.get_env(:spotify_adapter, :client_id)}:#{
+        Application.get_env(:spotify_adapter, :client_secret)
+      }"
+    )
   end
 
   @impl true
