@@ -16,6 +16,14 @@ defmodule SpotifyAdapter.Session do
     GenServer.start_link(__MODULE__, initial)
   end
 
+  def start_link(initial = %{code: _, client_token: _}) do
+    data =
+      initial
+      |> Map.put(:http_client, HTTPoison)
+
+    GenServer.start_link(__MODULE__, data)
+  end
+
   def request_auth_tokens(session) do
     GenServer.call(session, :request_auth_tokens)
   end
@@ -28,8 +36,22 @@ defmodule SpotifyAdapter.Session do
       redirect_uri: "http://localhost:3000"
     }
 
-    state.http_client.post(@token_request_url, body, [{:Authorization, state.client_token}])
-    {:reply, :ok, state}
+    %{
+      body: %{
+        "access_token" => access_token,
+        "scope" => scope,
+        "expires_in" => expires_in,
+        "refresh_token" => refresh_token
+      }
+    } = state.http_client.post!(@token_request_url, body, [{:Authorization, state.client_token}])
+
+    new_state =
+      state
+      |> Map.put(:access_token, access_token)
+      |> Map.put(:refresh_token, refresh_token)
+      |> Map.put(:scope, scope)
+
+    {:reply, :ok, new_state}
   end
 
   @impl true

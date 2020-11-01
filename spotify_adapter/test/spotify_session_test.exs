@@ -5,11 +5,16 @@ defmodule SpotifyAdapter.SessionTest do
 
   doctest S
 
-  @token_request_url "https://accounts.spotify.com/api/token"
-  @test_client_token "barf"
-  @test_code "code"
+  ### TODO:
+  # Don't send in the client token.
+  # Instead have the start up pull the App vars and compute it
+  # Test this, crash if it fails
 
   setup do
+    token_request_url = Application.get_env(:spotify_adapter, :token_request_url)
+    client_id = Application.get_env(:spotify_adapter, :client_id)
+    client_secret = Application.get_env(:spotify_adapter, :client_secret)
+
     startup_params = %{
       code: @test_code,
       http_client: FakeHttp,
@@ -18,7 +23,7 @@ defmodule SpotifyAdapter.SessionTest do
     }
 
     session = start_supervised!({S, startup_params})
-    %{session: session, startup_params: startup_params}
+    %{session: session, startup_params: startup_params, token_request_url: token_request_url}
   end
 
   describe "Startup" do
@@ -34,12 +39,13 @@ defmodule SpotifyAdapter.SessionTest do
       assert_raise(FunctionClauseError, ~r(no function clause), fn -> S.start_link(sp) end)
     end
 
-    test "must include an HTTP client module", %{startup_params: startup_params} do
+    test "defaults to HTTPoison", %{startup_params: startup_params} do
       sp =
         startup_params
         |> Map.delete(:http_client)
 
-      assert_raise(FunctionClauseError, ~r(no function clause), fn -> S.start_link(sp) end)
+      assert {:ok, session} = S.start_link(sp)
+      assert %{http_client: HTTPoison} = :sys.get_state(session)
     end
 
     test "must include a client token", %{startup_params: startup_params} do
@@ -52,13 +58,13 @@ defmodule SpotifyAdapter.SessionTest do
   end
 
   describe "Perform auth" do
-    test "Makes a token request", %{session: session} do
+    test "Makes a token request", %{session: session, token_request_url: token_request_url} do
       S.request_auth_tokens(session)
 
       assert_received(
         {:http_post,
          %{
-           url: @token_request_url,
+           url: token_request_url,
            body: %{
              grant_type: "authorization_code",
              code: @test_code,
@@ -67,6 +73,18 @@ defmodule SpotifyAdapter.SessionTest do
            headers: [{:Authorization, @test_client_token}]
          }}
       )
+    end
+
+    test "saves the tokens to server state", %{session: session} do
+      S.request_auth_tokens(session)
+
+      assert %{access_token: _, refresh_token: _} = :sys.get_state(session)
+    end
+
+    test "saves the scope to server state", %{session: session} do
+      S.request_auth_tokens(session)
+
+      assert %{scope: _} = :sys.get_state(session)
     end
   end
 end
