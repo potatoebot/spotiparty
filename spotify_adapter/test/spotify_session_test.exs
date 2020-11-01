@@ -9,6 +9,7 @@ defmodule SpotifyAdapter.SessionTest do
     token_request_url = Application.get_env(:spotify_adapter, :token_request_url)
     client_id = Application.get_env(:spotify_adapter, :client_id)
     client_secret = Application.get_env(:spotify_adapter, :client_secret)
+    api_base_url = Application.get_env(:spotify_adapter, :api_base_url)
 
     startup_params = %{
       code: @test_code,
@@ -17,7 +18,13 @@ defmodule SpotifyAdapter.SessionTest do
     }
 
     session = start_supervised!({S, startup_params})
-    %{session: session, startup_params: startup_params, token_request_url: token_request_url}
+
+    %{
+      api_base_url: api_base_url,
+      session: session,
+      startup_params: startup_params,
+      token_request_url: token_request_url
+    }
   end
 
   describe "Startup" do
@@ -77,6 +84,46 @@ defmodule SpotifyAdapter.SessionTest do
       S.request_auth_tokens(session)
 
       assert %{scope: _} = :sys.get_state(session)
+    end
+  end
+
+  describe "Pause the player" do
+    test "Makes the pause request", %{session: session, api_base_url: api_base_url} do
+      S.request_auth_tokens(session)
+      S.pause(session)
+
+      %{access_token: at} = :sys.get_state(session)
+
+      url = "#{api_base_url}/v1/me/player/pause"
+      auth = "Bearer #{at}"
+
+      assert_received(
+        {:http_put,
+         %{
+           url: ^url,
+           headers: [{:Authorization, ^auth}]
+         }}
+      )
+    end
+  end
+
+  describe "Play the player" do
+    test "Makes the play request", %{session: session, api_base_url: api_base_url} do
+      S.request_auth_tokens(session)
+      S.play(session)
+
+      %{access_token: at} = :sys.get_state(session)
+
+      url = "#{api_base_url}/v1/me/player/play"
+      auth = "Bearer #{at}"
+
+      assert_received(
+        {:http_put,
+         %{
+           url: ^url,
+           headers: [{:Authorization, ^auth}]
+         }}
+      )
     end
   end
 end

@@ -37,6 +37,14 @@ defmodule SpotifyAdapter.Session do
     GenServer.call(session, :request_auth_tokens)
   end
 
+  def pause(session) do
+    GenServer.call(session, :pause)
+  end
+
+  def play(session) do
+    GenServer.call(session, :play)
+  end
+
   defp check_env do
     if is_nil(Application.get_env(:spotify_adapter, :token_request_url)) do
       raise("token_request_url not set")
@@ -48,6 +56,10 @@ defmodule SpotifyAdapter.Session do
 
     if is_nil(Application.get_env(:spotify_adapter, :client_secret)) do
       raise("client_secret not set")
+    end
+
+    if is_nil(Application.get_env(:spotify_adapter, :api_base_url)) do
+      raise("api_base_url not set")
     end
 
     :ok
@@ -92,6 +104,32 @@ defmodule SpotifyAdapter.Session do
       |> Map.put(:scope, scope)
 
     {:reply, :ok, new_state}
+  end
+
+  @impl true
+  def handle_call(:pause, _from, state) do
+    state.http_client.put!(
+      "#{Application.get_env(:spotify_adapter, :api_base_url)}/v1/me/player/pause",
+      [],
+      [
+        {:Authorization, "Bearer #{state.access_token}"}
+      ]
+    )
+
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call(:play, _from, state) do
+    state.http_client.put!(
+      "#{Application.get_env(:spotify_adapter, :api_base_url)}/v1/me/player/play",
+      [],
+      [
+        {:Authorization, "Bearer #{state.access_token}"}
+      ]
+    )
+
+    {:reply, :ok, state}
   end
 
   @impl true
