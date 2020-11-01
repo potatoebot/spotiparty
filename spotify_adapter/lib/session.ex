@@ -7,10 +7,12 @@ defmodule SpotifyAdapter.Session do
 
   use GenServer
 
+  @token_request_url "https://accounts.spotify.com/api/token"
+
   @doc """
   Start the session. We require a code from the initial authorization request (from the browser)
   """
-  def start_link(initial = %{code: _, http_client: _}) do
+  def start_link(initial = %{code: _, http_client: _, client_token: _}) do
     GenServer.start_link(__MODULE__, initial)
   end
 
@@ -20,7 +22,13 @@ defmodule SpotifyAdapter.Session do
 
   @impl true
   def handle_call(:request_auth_tokens, _from, state) do
-    state.http_client.get("url", "")
+    body = %{
+      grant_type: "authorization_code",
+      code: state.code,
+      redirect_uri: "http://localhost:3000"
+    }
+
+    state.http_client.post(@token_request_url, body, [{:Authorization, state.client_token}])
     {:reply, :ok, state}
   end
 

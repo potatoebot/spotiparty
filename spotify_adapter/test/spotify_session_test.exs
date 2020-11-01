@@ -5,11 +5,16 @@ defmodule SpotifyAdapter.SessionTest do
 
   doctest S
 
+  @token_request_url "https://accounts.spotify.com/api/token"
+  @test_client_token "barf"
+  @test_code "code"
+
   setup do
     startup_params = %{
-      code: "code",
+      code: @test_code,
       http_client: FakeHttp,
-      test_reporting_pid: self()
+      test_reporting_pid: self(),
+      client_token: @test_client_token
     }
 
     session = start_supervised!({S, startup_params})
@@ -36,24 +41,30 @@ defmodule SpotifyAdapter.SessionTest do
 
       assert_raise(FunctionClauseError, ~r(no function clause), fn -> S.start_link(sp) end)
     end
+
+    test "must include a client token", %{startup_params: startup_params} do
+      sp =
+        startup_params
+        |> Map.delete(:client_token)
+
+      assert_raise(FunctionClauseError, ~r(no function clause), fn -> S.start_link(sp) end)
+    end
   end
 
   describe "Perform auth" do
     test "Makes a token request", %{session: session} do
       S.request_auth_tokens(session)
 
-      :sys.get_state(session)
-      :sys.get_state(session)
-      :sys.get_state(session)
-      :sys.get_state(session)
-      :sys.get_state(session)
-      :sys.get_state(session)
-
       assert_received(
-        {:http_get,
+        {:http_post,
          %{
-           url: "url",
-           headers: ""
+           url: @token_request_url,
+           body: %{
+             grant_type: "authorization_code",
+             code: @test_code,
+             redirect_uri: "http://localhost:3000"
+           },
+           headers: [{:Authorization, @test_client_token}]
          }}
       )
     end

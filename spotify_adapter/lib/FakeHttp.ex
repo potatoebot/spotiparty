@@ -3,9 +3,7 @@ defmodule SpotifyAdapter.FakeHttp do
   Test double for HttpPoison
   """
 
-  def get(url, headers) do
-    IO.inspect("called")
-    IO.inspect(self())
-    send(self(), {:test, :http_get, %{url: url, headers: headers}})
+  def post(url, body, headers) do
+    send(self(), {:test, :http_post, %{url: url, headers: headers, body: body}})
   end
 end
