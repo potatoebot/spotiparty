@@ -63,20 +63,27 @@ defmodule SpotifyAdapter.Session do
 
   @impl true
   def handle_call(:request_auth_tokens, _from, state) do
-    body = %{
-      grant_type: "authorization_code",
-      code: state.code,
-      redirect_uri: "http://localhost:3000"
+    body = {
+      :form,
+      [
+        client_id: Application.get_env(:spotify_adapter, :client_id),
+        client_secret: Application.get_env(:spotify_adapter, :client_secret),
+        grant_type: "authorization_code",
+        code: state.code,
+        redirect_uri: "https://example.com"
+      ]
     }
 
+    %{body: body} = state.http_client.post!(@token_request_url, body, [])
+
     %{
-      body: %{
-        "access_token" => access_token,
-        "scope" => scope,
-        "expires_in" => expires_in,
-        "refresh_token" => refresh_token
-      }
-    } = state.http_client.post!(@token_request_url, body, [{:Authorization, state.client_token}])
+      "access_token" => access_token,
+      "scope" => scope,
+      "expires_in" => expires_in,
+      "refresh_token" => refresh_token
+    } =
+      body
+      |> Jason.decode!()
 
     new_state =
       state

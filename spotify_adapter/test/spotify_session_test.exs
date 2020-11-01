@@ -47,16 +47,22 @@ defmodule SpotifyAdapter.SessionTest do
     test "Makes a token request", %{session: session, token_request_url: token_request_url} do
       S.request_auth_tokens(session)
 
+      body =
+        %{
+          url: token_request_url,
+          body: %{
+            grant_type: "authorization_code",
+            code: @test_code,
+            redirect_uri: "http://localhost:3000"
+          }
+        }
+        |> Jason.encode!()
+
       assert_received(
         {:http_post,
          %{
            url: token_request_url,
-           body: %{
-             grant_type: "authorization_code",
-             code: @test_code,
-             redirect_uri: "http://localhost:3000"
-           },
-           headers: [{:Authorization, _}]
+           body: body
          }}
       )
     end

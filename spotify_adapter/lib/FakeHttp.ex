@@ -4,15 +4,17 @@ defmodule SpotifyAdapter.FakeHttp do
   """
 
   def post!(url, body, headers) do
-    send(self(), {:test, :http_post, %{url: url, headers: headers, body: body}})
+    send(self(), {:test, :http_post, %{url: url, body: body}})
 
     %{
-      body: %{
-        "access_token" => "access_token",
-        "scope" => "scope",
-        "expires_in" => "expires_in",
-        "refresh_token" => "refresh_token"
-      }
+      body:
+        %{
+          "access_token" => "access_token",
+          "scope" => "scope",
+          "expires_in" => "expires_in",
+          "refresh_token" => "refresh_token"
+        }
+        |> Jason.encode!()
     }
   end
 end
