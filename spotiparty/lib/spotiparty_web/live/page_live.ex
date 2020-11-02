@@ -1,4 +1,5 @@
 defmodule SpotipartyWeb.PageLive do
+  @moduledoc false
   use SpotipartyWeb, :live_view
 
   @impl true

@@ -14,6 +14,8 @@ defmodule Spotiparty.DataCase do
   this option is not recommended for other databases.
   """
 
+  alias Ecto.Adapters.SQL.Sandbox
+
   use ExUnit.CaseTemplate
 
   using do
@@ -28,10 +30,10 @@ defmodule Spotiparty.DataCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Spotiparty.Repo)
+    :ok = Sandbox.checkout(Spotiparty.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Spotiparty.Repo, {:shared, self()})
+      Sandbox.mode(Spotiparty.Repo, {:shared, self()})
     end
 
     :ok
