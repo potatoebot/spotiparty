@@ -13,7 +13,7 @@ defmodule SpotifyAdapter.Session do
   Start the session. We require a code from the initial authorization request (from the browser)
   """
   def start_link(initial = %{code: _, http_client: _}) do
-    check_env
+    check_env()
 
     data =
       initial
@@ -23,7 +23,7 @@ defmodule SpotifyAdapter.Session do
   end
 
   def start_link(initial = %{code: _}) do
-    check_env
+    check_env()
 
     data =
       initial
@@ -91,7 +91,7 @@ defmodule SpotifyAdapter.Session do
     %{
       "access_token" => access_token,
       "scope" => scope,
-      "expires_in" => expires_in,
+      "expires_in" => _expires_in,
       "refresh_token" => refresh_token
     } =
       body
@@ -130,6 +130,11 @@ defmodule SpotifyAdapter.Session do
     )
 
     {:reply, :ok, state}
+  end
+
+  @impl true
+  def init(init_arg) do
+    {:ok, init_arg}
   end
 
   @impl true

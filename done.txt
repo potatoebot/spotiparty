@@ -1,0 +1,4 @@
+- set up mix project for adapter
+- set up mix project for server
+- set up tester page to generate user codes
+- auth with adapter
