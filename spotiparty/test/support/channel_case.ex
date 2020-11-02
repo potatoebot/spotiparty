@@ -13,7 +13,9 @@ defmodule SpotipartyWeb.ChannelCase do
              PostgreSQL, you can even run database tests asynchronously
              by setting `use SpotipartyWeb.ChannelCase, async: true`, although
              this option is not recommended for other databases.
-             """.alias(Ecto.Adapters.SQL.Sandbox)
+  """
+
+  alias(Ecto.Adapters.SQL.Sandbox)
 
   use ExUnit.CaseTemplate
 

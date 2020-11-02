@@ -1,4 +1,0 @@
- - Pre-commit hooks
-  - run tests
-  - run credo
-  - build clean
