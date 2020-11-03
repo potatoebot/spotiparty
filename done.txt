@@ -2,7 +2,10 @@
 - set up mix project for server
 - set up tester page to generate user codes
 - auth with adapter
+- pause with adapter
+- play with adapter
 - Pre-commit hooks
   - run tests
   - run credo
   - build clean
+- set tool versions

@@ -1,0 +1,3 @@
+- the "start app" link
+  - see it
+  - click auths against spotify
