@@ -1,5 +1,10 @@
 use Mix.Config
 
+# App cofiguration
+config :spotiparty,
+  client_id: "c20c55af282e447fa34d7413b6fb8518",
+  base_url: "http://localhost:4000"
+
 # Configure your database
 config :spotiparty, Spotiparty.Repo,
   username: "postgres",

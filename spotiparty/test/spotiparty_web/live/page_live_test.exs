@@ -9,4 +9,11 @@ defmodule SpotipartyWeb.PageLiveTest do
     assert disconnected_html =~ "s spotiparty"
     assert render(page_live) =~ "s spotiparty"
   end
+
+  test "has a link to spotify", %{conn: conn} do
+    {:ok, page_live, _} = live(conn, "/")
+    link_element = page_live |> element("a[data_test=\"connect-link\"]")
+    assert render(link_element) =~ "Connect to Spotify"
+    assert render(link_element) =~ "https://accounts.spotify.com/authorize"
+  end
 end

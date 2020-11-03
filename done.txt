@@ -9,3 +9,6 @@
   - run credo
   - build clean
 - set tool versions
+- the "start app" link
+  - see it
+  - click auths against spotify

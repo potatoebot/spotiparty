@@ -37,4 +37,10 @@ defmodule SpotipartyWeb.PageLive do
         into: %{},
         do: {app, vsn}
   end
+
+  def url do
+    "https://accounts.spotify.com/authorize?client_id=#{
+      Application.get_env(:spotiparty, :client_id)
+    }&response_type=code&redirect_uri=#{Application.get_env(:spotiparty, :base_url)}/callback&scope=user-modify-playback-state"
+  end
 end
