@@ -1,3 +1,4 @@
 - the "start app" link
-  - see it
-  - click auths against spotify
+  - code is saved to the spotify session
+  - auth tokens are fetched
+  - takes us to play pause

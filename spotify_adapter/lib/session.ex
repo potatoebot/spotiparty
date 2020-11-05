@@ -82,7 +82,7 @@ defmodule SpotifyAdapter.Session do
         client_secret: Application.get_env(:spotify_adapter, :client_secret),
         grant_type: "authorization_code",
         code: state.code,
-        redirect_uri: "https://example.com"
+        redirect_uri: Application.get_env(:spotify_adapter, :redirect_uri)
       ]
     }
 

@@ -6,3 +6,8 @@
   - play plays our spotify player
   - pause pauses out spotify player
 - commit git hooks and use setup script to customize hooks dir
+- mix docs for spotify_adapter
+- typespecs for spotify_adapter
+- mix docs for spotiparty
+- typespecs for spotiparty
+- get rid of Session in SpotifyAdapter.Session

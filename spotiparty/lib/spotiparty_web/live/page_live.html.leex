@@ -2,16 +2,14 @@
   <h1><%= gettext "%{benediction}", benediction: "let's spotiparty"%></h1>
   <p>Peace of mind from prototype to production</p>
 
-  <a href="<%= url() %>" data_test="connect-link">Connect to Spotify<a>
-  <form phx-change="suggest" phx-submit="search">
-    <input type="text" name="q" value="<%= @query %>" placeholder="Live dependency search" list="results" autocomplete="off"/>
-    <datalist id="results">
-      <%= for {app, _vsn} <- @results do %>
-        <option value="<%= app %>"><%= app %></option>
-      <% end %>
-    </datalist>
-    <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-  </form>
+  <%= if @live_action == :new do %>
+    <a href="<%= url() %>" data_test="connect-link">Connect to Spotify<a>
+  <% end %>
+
+  <%= if !is_nil(@spotsesh) do %>
+    Connected!
+  <% end %>
+
 </section>
 
 <section class="row">

@@ -3,8 +3,21 @@ defmodule SpotipartyWeb.PageLive do
   use SpotipartyWeb, :live_view
 
   @impl true
+  def mount(_params, _session, socket = %{assigns: %{spotsesh: pid}}) when is_pid(pid) do
+    {:ok, socket}
+  end
+
+  @impl true
+  def mount(%{"code" => code}, _session, socket) do
+    adapter = Application.get_env(:spotiparty, :spotify_adapter)
+    {:ok, spotsesh} = adapter.start_link(%{code: code})
+    adapter.request_auth_tokens(spotsesh)
+    {:ok, assign(socket, spotsesh: spotsesh)}
+  end
+
+  @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    {:ok, assign(socket, spotsesh: nil)}
   end
 
   @impl true
@@ -38,7 +51,7 @@ defmodule SpotipartyWeb.PageLive do
         do: {app, vsn}
   end
 
-  def url do
+  defp url do
     "https://accounts.spotify.com/authorize?client_id=#{
       Application.get_env(:spotiparty, :client_id)
     }&response_type=code&redirect_uri=#{Application.get_env(:spotiparty, :base_url)}/callback&scope=user-modify-playback-state"

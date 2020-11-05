@@ -3,7 +3,14 @@ use Mix.Config
 # App cofiguration
 config :spotiparty,
   client_id: "c20c55af282e447fa34d7413b6fb8518",
-  base_url: "http://localhost:4000"
+  base_url: "http://localhost:4000",
+  spotify_adapter: SpotifyAdapter.Session
+
+config :spotify_adapter,
+  token_request_url: "https://accounts.spotify.com/api/token",
+  client_id: "c20c55af282e447fa34d7413b6fb8518",
+  api_base_url: "https://api.spotify.com",
+  redirect_uri: "http://localhost:4000/callback"
 
 # Configure your database
 config :spotiparty, Spotiparty.Repo,
@@ -79,3 +86,5 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+import_config "dev.secret.exs"

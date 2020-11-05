@@ -17,7 +17,8 @@ defmodule SpotipartyWeb.Router do
   scope "/", SpotipartyWeb do
     pipe_through :browser
 
-    live "/", PageLive, :index
+    live "/", PageLive, :new
+    live "/callback", PageLive, :callback
   end
 
   # Other scopes may use custom stacks.
